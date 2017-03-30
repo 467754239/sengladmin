@@ -1,13 +1,24 @@
 # 0.说明
 #### Dashboard For Business Services
 
+```python
+#文中所有$开头的均为变量，需要替换为实际环境下的真实值
+
+—————————————————————————
+|--README.md # 项目说明
+|--manage.py # DJango管理文件
+|--Sengladmin # Django工程目录
+|--sengladmin # Django项目目录
+|--prepares  # 准备数据
+   |--python_module_code # 需要更新的Python模块源码文件
+   |--static_data # 静态数据
+|--requirements.txt # Python依赖包及版本
 ```
-文中所有$开头的均为变量，需要替换为实际环境下的真实值
-```
+
 
 # 1.依赖
 ## 1.1 Redis
-```
+```python
 https://redis.io/download #获取redis源码包安装
 ```
 
@@ -104,7 +115,7 @@ cp $workspace/$project-name/prepares/python_module_code/std.py $venv-path-name/l
 ```
 
 ## 2.3 修改配置文件
-```
+```python
 $workspace/$project-name/Sengladmin/settings.py # 配置文件
 
 LOGGING #日志的配置
