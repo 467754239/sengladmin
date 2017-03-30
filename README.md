@@ -156,12 +156,12 @@ mongoimport -u $user_name -p $user_pwd -d $user_db -c $table --file=$workspace/$
 # 3. 启动服务
 ## 3.1 启动Celery
 ```
-nohup python manage.py runserver 0.0.0.0:$port >/dev/null 2>&1 &
+nohup python manage.py celery worker >/dev/null 2>&1 &
 ```
 
 ## 3.2 启动Django
 ```
-nohup python manage.py celery worker >/dev/null 2>&1 &
+nohup python manage.py runserver 0.0.0.0:$port >/dev/null 2>&1 &
 ```
 
 # 4. 使用
