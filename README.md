@@ -5,14 +5,14 @@
 #文中所有$开头的均为变量，需要替换为实际环境下的真实值
 
 —————————————————————————
-|--README.md # 项目说明
-|--manage.py # DJango管理文件
-|--Sengladmin # Django工程目录
-|--sengladmin # Django项目目录
-|--prepares  # 准备数据
-   |--python_module_code # 需要更新的Python模块源码文件
-   |--static_data # 静态数据
-|--requirements.txt # Python依赖包及版本
+|——README.md # 项目说明
+|——manage.py # DJango管理文件
+|——Sengladmin # Django工程目录
+|——sengladmin # Django项目目录
+|——prepares  # 准备数据
+   |——python_module_code # 需要更新的Python模块源码文件
+   |——static_data # 静态数据
+|——requirements.txt # Python依赖包及版本
 ```
 
 
