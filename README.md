@@ -12,6 +12,7 @@
 |——prepares  # 准备数据
    |——python_module_code # 需要更新的Python模块源码文件
    |——static_data # 静态数据
+   |——scripts # 脚本,Jenkins和build-docker等使用
 |——requirements.txt # Python依赖包及版本
 ```
 
@@ -25,6 +26,7 @@ https://redis.io/download #获取redis源码包安装
 ## 1.2 MongoDB
 ### 1.2.1 安装MongoDB
 - Ubuntu下安装
+
 ```
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
 
@@ -36,6 +38,7 @@ apt-get install -y mongodb-enterprise
 
 service mongod start
 ```
+
 - CentOS下安装
 
 ### 1.2.2 新建用户
