@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SenglAdmin</title>
+    <!-- Bootstrap -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="/static/css/custom.min.css" rel="stylesheet">
+    <link href="/static/image/favicon.ico" rel="shortcut icon">
+
+    {% block import_css %}
+    {% endblock %}
+
+  </head>
+
+  <body class="nav-md">
+    <div class="container body">
+      <div class="main_container">
+        <div class="col-md-3 left_col">
+          <div class="left_col scroll-view">
+            <div class="navbar nav_title" style="border: 0;">
+              <a href="#" class="site_title"><i style="border: none;"><!--img src="/static/image/icon.png" alt="logo"/--></i><span>Sengled</span></a>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <!-- menu profile quick info -->
+            <div class="profile" style="height:80px;">
+              <div class="profile_pic"><img src="/static/image/head.jpg" alt="..." class="img-circle profile_img"></div>
+              <div class="profile_info"><span>Welcome,</span><h2>{{ user_name }}</h2></div>
+              <input id="current_permission" type="hidden" value="{{ current_permission }}"/>
+              <!--span id="current_account" hidden>{{ account }}</span-->
+            </div>
+            <!-- /menu profile quick info -->
+
+            <!-- sidebar menu -->
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+              <div class="menu_section">
+
+                <!--ul class="nav side-menu">
+                  <li><a><i class="fa fa-home"></i> 系统管理 <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="/sengladmin/user/">用户列表</a></li>
+                      <li><a href="/sengladmin/role/">角色列表</a></li>
+                      <li><a href="/sengladmin/permission/">权限列表</a></li>
+                      <li><a href="/sengladmin/log/">操作日志</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-desktop"></i> 运维管理 <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="/sengladmin/consignee/">邮件列表</a></li>
+                      <li><a href="/sengladmin/datacenter/">数据中心</a></li>
+                      <li><a href="/sengladmin/service/">应用服务</a></li>
+                      <li><a href="/sengladmin/group/">部署组</a></li>
+                      <li><a href="/sengladmin/config/">配置中心</a></li>
+                      <li><a href="/sengladmin/health/">健康检查</a></li>
+                      <li><a href="/sengladmin/monitor/">监控配置</a></li>
+                      <li><a href="/sengladmin/package/">版本包</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-edit"></i> 审核管理 <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="/sengladmin/audit/">审核版本包</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-cloud-upload"></i> 升级管理 <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="/sengladmin/deploy/">升级中心</a></li>
+                      <li><a href="/sengladmin/deploy/record/">升级记录</a></li>
+                      <li><a href="/sengladmin/deploy/process/">升级进程</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-bar-chart-o"></i> Data Presentation <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="#">Chart JS</a></li>
+                      <li><a href="#">Chart JS2</a></li>
+                      <li><a href="#">Moris JS</a></li>
+                      <li><a href="#">ECharts</a></li>
+                      <li><a href="#">Other Charts</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-clone"></i>Layouts <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="fixed_sidebar.html">Fixed Sidebar</a></li>
+                      <li><a href="fixed_footer.html">Fixed Footer</a></li>
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-windows"></i> Extras <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="page_403.html">403 Error</a></li>
+                      <li><a href="page_404.html">404 Error</a></li>
+                      <li><a href="page_500.html">500 Error</a></li>
+                      <li><a href="plain_page.html">Plain Page</a></li>
+                      <li><a href="login.html">Login Page</a></li>
+                      <li><a href="pricing_tables.html">Pricing Tables</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="javascript:void(0)"><i class="fa fa-laptop"></i> Landing Page <span class="label label-success pull-right">Coming Soon</span></a>
+                  </li>
+                </ul-->
+              </div>
+            </div>
+            <!-- /sidebar menu -->
+
+          </div>
+        </div>
+
+        <!-- top navigation -->
+        <div class="top_nav">
+          <div class="nav_menu">
+            <nav class="" role="navigation">
+              <div class="nav toggle">
+                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+              </div>
+
+              <ul class="nav navbar-nav navbar-right">
+                <li class="">
+                  <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <img src="/static/image/head.jpg" alt="">{{ user_name }}
+                    <span class=" fa fa-angle-down"></span>
+                  </a>
+                  <ul class="dropdown-menu dropdown-usermenu pull-right">
+                    <!--li><a href="javascript:;"> Profile</a></li>
+                    <li>
+                      <a href="javascript:;">
+                        <span class="badge bg-red pull-right">50%</span>
+                        <span>Settings</span>
+                      </a>
+                    </li>
+                    <li><a href="javascript:;">Help</a></li-->
+                    <li data-toggle="modal" data-target="#modifyPsd"><a href="#"><i class="fa fa-sign-out pull-right"></i> 修改密码</a></li>
+                    <li><a href="#" id="logout"><i class="fa fa-sign-out pull-right"></i> 退出</a></li>
+                  </ul>
+                </li>
+
+                <li role="presentation" class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-envelope-o"></i>
+                    <span class="badge bg-green">6</span>
+                  </a>
+                  <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
+                    <li>
+                      <a>
+                        <span class="image"><img src="/static/image/notice.jpg" alt="Profile Image" /></span>
+                        <span>
+                          <span>John Smith</span>
+                          <span class="time">3 mins ago</span>
+                        </span>
+                        <span class="message">
+                          Film festivals used to be do-or-die moments for movie makers. They were where...
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <a>
+                        <span class="image"><img src="/static/image/notice.jpg" alt="Profile Image" /></span>
+                        <span>
+                          <span>John Smith</span>
+                          <span class="time">3 mins ago</span>
+                        </span>
+                        <span class="message">
+                          Film festivals used to be do-or-die moments for movie makers. They were where...
+                        </span>
+                      </a>
+                    </li>
+                    <li>
+                      <div class="text-center">
+                        <a>
+                          <strong>See All Alerts</strong>
+                          <i class="fa fa-angle-right"></i>
+                        </a>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        {% block content %}
+            <div class="right_col" role="main">
+               内容
+            </div>
+        {% endblock %}
+        <!-- /page content -->
+
+        <!--modify password module-->
+        <div id="modifyPsd" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="ModalPsd">修改密码</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="testmodal" style="padding: 5px 20px;" class="form-group">
+                            <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                                <span id="current_account" hidden>{{ account }}</span>
+                                <div class="form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="old-psd">原密码<span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="password" id="old_password" name="old_password" required="required" class="form-control col-md-7 col-xs-12">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="new-psd">新密码<span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="password" id="new_password" name="new_password" required="required" class="form-control col-md-7 col-xs-12">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="twice-psd">重复新密码<span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="password" id="repeat_password" name="repeat_password" required="required" class="form-control col-md-7 col-xs-12" onblur="modify_pass_verify()">
+                                        <span id="verify"></span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="button_cancel_modify_pass" type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                        <button id="button_submit" type="button" class="btn btn-primary" data-dismiss="modal">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /modify password module-->
+
+        <!-- footer content -->
+        <footer>
+          <div class="pull-right">
+            SenglAdmin Console from <a href="http://www.sengled.com" target="_blank">Sengled</a>
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+      </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            console.log($('#current_permission').val())
+            var sidebarMenu=JSON.parse($('#current_permission').val());
+            var html= '<ul class="nav side-menu">';
+            $.each(sidebarMenu,function(i,d) {
+                html+= '<li><a><i class="fa fa-home"></i>'+d.name+'<span class="fa fa-chevron-down"></span></a>';
+                html+='<ul class="nav child_menu">';
+                $.each(d.children,function(i,d){
+                    console.log(d.url)
+                    html+='<li><a href="'+ d.url+'">'+ d.name+'</a></li>'
+                });
+                html+='</ul></li>';
+            });
+            html+='</ul>';
+            $('.menu_section').html(html)
+        });
+    </script>
+
+    <!-- Bootstrap -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <!-- Custom Theme Scripts -->
+    <script src="/static/js/custom.min.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    {% block import_js %}
+    {% endblock %}
+
+    {% block scripts %}
+    {% endblock %}
+
+  </body>
+</html>

@@ -1,0 +1,140 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+    <div class="">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>角色列表<small></small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>角色等级</th>
+                                    <th>角色名称</th>
+                                    <th>角色说明</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for role in context.rsp_body.roles %}
+                                    <tr>
+                                        <td>{{ role.level }}</td>
+                                        <td>{{ role.name }}</td>
+                                        <td>{{ role.description }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-xs btn-custom btnGetRole" data-toggle="modal" data-target=".getRole">
+                                                <i class="fa fa-search-plus"></i> 详情
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-xs btn-custom btnAllotPermission" data-toggle="modal" data-target=".allotPermission">
+                                                <i class="fa fa-key"></i> 分配权限
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--get role module-->
+<div class="modal fade getRole" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">角色详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_role_name">角色名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_role_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_role_level">角色等级<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_role_level" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_role_desc">角色说明<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_role_desc" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_role_users">用户<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_role_users" class="form-control" rows="5" disabled="true"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /get role module-->
+
+<!--/allot permission module-->
+<div class="modal fade allotPermission" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="">分配权限</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <ul id="treeDemo" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button  type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_allot_permission"  type="button" class="btn btn-primary" data-dismiss="modal">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/allot permission module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link rel="stylesheet" href="/static/css/green.css">
+    <link rel="stylesheet" href="/static/css/dataTables.bootstrap.min.css">
+    <!--link rel="stylesheet" href="/static/css/demo.css"-->
+    <link rel="stylesheet" href="/static/css/zTreeStyle.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/jquery.ztree.core-3.5.js"></script>
+    <script src="/static/js/jquery.ztree.excheck-3.5.js"></script>
+    <script src="/static/js/checkModal.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}

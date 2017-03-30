@@ -1,0 +1,14 @@
+[{
+	"_id": {
+		"$oid": "5812ebb488961f154dd5815f"
+	},
+	"account": "110@xx.com",
+	"password": "MTk2NjhlMWMxZWI0NTY5YzgwN2VlNTQ5OGE1NmRjZGI=",
+	"username": "root",
+	"phone": "110",
+	"create_time": "2016-10-28 06:09:56",
+	"last_time": "2017-03-24 03:05:20",
+	"role": "系统管理员"
+}
+]
+

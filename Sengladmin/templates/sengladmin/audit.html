@@ -1,0 +1,333 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2 id="package_title">{{ package_type }}<small></small></h2>
+                        <form method="GET" action="/sengladmin/audit/" class="form-custom">
+                            <button id="get_all_audit" class="btn btn-primary btn-sm btn-right">全部版本</button>
+                        </form>
+                        <form method="GET" action="/sengladmin/audit/sub/" class="form-custom">
+                            <input type="hidden" name="status" value="refuse">
+                            <button id="get_refuse_audit" class="btn btn-danger btn-sm btn-right">审核拒绝</button>
+                        </form>
+                        <form method="GET" action="/sengladmin/audit/sub/" class="form-custom">
+                            <input type="hidden" name="status" value="pass">
+                            <button id="get_pass_audit" class="btn btn-success btn-sm btn-right">审核通过</button>
+                        </form>
+                        <form method="GET" action="/sengladmin/audit/sub/" class="form-custom">
+                            <input type="hidden" name="status" value="wait">
+                            <button id="get_wait_audit" class="btn btn-warning btn-sm btn-right">等待审核</button>
+                        </form>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>服务</th>
+                                    <th>版本</th>
+                                    <!--th>校验值</th-->
+                                    <th>MD5 状态</th>
+                                    <th>SQL 状态</th>
+                                    <th>端口状态</th>
+                                    <th>配置状态</th>
+                                    <th>时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for package in context.rsp_body.packages %}
+                                    <tr>
+                                        <td>{{ package.service }}</td>
+                                        <td>{{ package.version }}</td>
+                                        <!--td>{{ package.md5 }}</td-->
+                                        <td>{{ package.status.md5 }}</td>
+                                        <td>{{ package.status.sql }}</td>
+                                        <td>{{ package.status.port }}</td>
+                                        <td>{{ package.status.config }}</td>
+                                        <td>{{ package.time }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-xs btn-custom btnGetAudit" data-toggle="modal" data-target=".getAudit">
+                                                <i class="fa fa-search-plus"></i> 详情
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-xs btn-custom btnPassPort" data-toggle="modal" data-target=".passPort">
+                                                <i class="fa fa-dot-circle-o"></i> 端口
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs btn-custom btnRefusePort" data-toggle="modal" data-target=".refusePort">
+                                                <i class="fa fa-circle-o"></i> 端口
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-xs btn-custom btnPassConfig" data-toggle="modal" data-target=".passConfig">
+                                                <i class="fa fa-dot-circle-o"></i> 配置
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs btn-custom btnRefuseConfig" data-toggle="modal" data-target=".refuseConfig">
+                                                <i class="fa fa-circle-o"></i> 配置
+                                            </button>
+                                            <button type="button" class="btn btn-dark btn-xs btn-custom btnPassForce" data-toggle="modal" data-target=".passForce">
+                                                <i class="fa fa-fire-extinguisher"></i> 强制通过
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--get audit module-->
+<div class="modal fade getAudit" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">待审核详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_service">服务<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_package_service" class="form-control" disabled="true"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_version">版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_package_version" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <!--div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_md5">校验值<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_package_md5" class="form-control" rows="3" required="required" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_region">所在区<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_package_region" class="form-control" disabled="true">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_bucket">所在桶<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_package_bucket" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_file_path">路径<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_package_file_path" class="form-control" rows="3" required="required" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_time">时间<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_package_time" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div-->
+
+                        <p class="title_line"><span></span><em>待审核</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_audit_port">端口审核<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_package_audit_port" class="form-control" rows="5" required="required" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_package_audit_config">配置审核<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_package_audit_config" class="form-control" rows="10" required="required" disabled="true"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /get audit module-->
+
+<!--pass port module-->
+<div class="modal fade passPort" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">对该版本包的端口审核通过？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">普通授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" name="authorize_pass_port" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_pass_port" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--pass port module-->
+
+<!--refuse port module-->
+<div class="modal fade refusePort" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">对该版本包的端口审核拒绝？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">普通授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" name="authorize_refuse_port" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_refuse_port" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--refuse port module-->
+
+<!--pass config module-->
+<div class="modal fade passConfig" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">对该版本包的配置审核通过？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">普通授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" name="authorize_pass_config" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_pass_config" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--pass config module-->
+
+<!--refuse port module-->
+<div class="modal fade refuseConfig" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">对该版本包的配置审核拒绝？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">普通授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" name="authorize_refuse_config" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_refuse_config" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--refuse port module-->
+
+<!--pass force module-->
+<div class="modal fade passForce" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">强制审核通过？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">超级授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" name="authorize_pass_force" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_pass_force" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--pass force module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}
+

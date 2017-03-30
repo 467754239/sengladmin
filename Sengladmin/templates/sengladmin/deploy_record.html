@@ -1,0 +1,161 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>升级记录列表<small></small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>服务</th>
+                                    <th>源版本</th>
+                                    <th>目标版本</th>
+                                    <th>状态</th>
+                                    <th>数据中心</th>
+                                    <th>开始时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for deploy_record in context.rsp_body.deploy_records %}
+                                    <tr>
+                                        <td>{{ deploy_record.deploy_id }}</td>
+                                        <td>{{ deploy_record.service }}</td>
+                                        <td>{{ deploy_record.source_version }}</td>
+                                        <td>{{ deploy_record.target_version }}</td>
+                                        <td>{{ deploy_record.result }}</td>
+                                        <td>{{ deploy_record.datacenter }}</td>
+                                        <td>{{ deploy_record.start_time }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-xs btn-custom btnGetDeployRecord" data-toggle="modal" data-target=".getDeployRecord">
+                                                <i class="fa fa-search-plus"></i> 详情
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--get health module-->
+<div class="modal fade getDeployRecord" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">升级记录细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_id">ID<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_id" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_source_version">源版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_source_version" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_target_version">目标版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_target_version" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_start_time">开始时间<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_start_time" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_end_time">结束时间<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_end_time" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_result">状态<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_result" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_env">环境<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_env" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_datacenter">数据中心<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_datacenter" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_group">部署组<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_group" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_service">服务<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_service" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_deploy_record_operator">操作人<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_deploy_record_operator" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /get health module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}
+

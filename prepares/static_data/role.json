@@ -1,0 +1,130 @@
+[{
+	"_id": {
+		"$oid": "5815bfdeaf6cab1e7dead559"
+	},
+	"name": "系统管理员",
+	"description": "系统管理员",
+	"level": 0.0,
+	"permissions": [
+		"系统管理",
+		"用户列表",
+		"角色列表",
+		"操作日志",
+		"权限列表",
+		"运维管理",
+		"邮件列表",
+		"数据中心",
+		"应用服务",
+		"部署组",
+		"配置中心",
+		"健康检查",
+		"监控配置",
+		"版本包",
+		"事件管理",
+		"审核管理",
+		"审核版本包",
+		"升级管理",
+		"升级中心",
+		"升级记录",
+		"升级进程",
+		"测试管理",
+		"测试版本",
+		"开发管理",
+		"服务管理",
+		"配置检索",
+		"部署版本"
+	],
+	"users": [
+		"wangshuai@sengled.com"
+	]
+},
+{
+	"_id": {
+		"$oid": "5815bfdeaf6cab1e7dead55a"
+	},
+	"name": "运维",
+	"description": "运维",
+	"level": 1.0,
+	"permissions": [
+		"运维管理",
+		"邮件列表",
+		"数据中心",
+		"应用服务",
+		"部署组",
+		"配置中心",
+		"健康检查",
+		"监控配置",
+		"版本包",
+		"事件管理",
+		"审核管理",
+		"审核版本包",
+		"升级管理",
+		"升级中心",
+		"升级记录",
+		"升级进程",
+		"开发管理",
+		"服务管理",
+		"配置检索",
+		"部署版本"
+	],
+	"users": [
+		"82806791@qq.com",
+		"liangzl@sengled.com",
+		"chenlei@sengled.com",
+		"ljx@sengled.com",
+		"zsq@sengled.com",
+		"zyh@sengled.com",
+		"yuze@sengled.com"
+	]
+},
+{
+	"_id": {
+		"$oid": "5815bfdeaf6cab1e7dead55b"
+	},
+	"name": "DBA",
+	"description": "DBA",
+	"level": 2.0,
+	"users": [
+		"zgl@sengled.com"
+	]
+},
+{
+	"_id": {
+		"$oid": "5815bfdeaf6cab1e7dead55c"
+	},
+	"name": "测试",
+	"description": "测试",
+	"level": 3.0,
+	"permissions": [
+		"升级管理",
+		"升级中心",
+		"升级记录",
+		"升级进程",
+		"测试管理",
+		"测试版本"
+	]
+},
+{
+	"_id": {
+		"$oid": "5815bfe0af6cab1e7dead55d"
+	},
+	"name": "开发",
+	"description": "开发",
+	"level": 4.0,
+	"users": [
+		"liubin@sengled.com",
+		"cxh@sengled.com",
+		"hxh@sengled.com",
+		"liqiang@sengled.com",
+		"qhm@sengled.com",
+		"ligen@sengled.com",
+		"1274903060@qq.com"
+	],
+	"permissions": [
+		"开发管理",
+		"服务管理",
+		"配置检索",
+		"部署版本"
+	]
+}]
+

@@ -1,0 +1,104 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>升级进程列表<small></small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>IP</th>
+                                    <th>状态</th>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for deploy_process in context.rsp_body.deploy_processes %}
+                                    <tr>
+                                        <td>{{ deploy_process.deploy_id }}</td>
+                                        <td>{{ deploy_process.instance }}</td>
+                                        <td>{{ deploy_process.result }}</td>
+                                        <td>{{ deploy_process.start_time }}</td>
+                                        <td>{{ deploy_process.end_time }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-success btn-xs btn-custom btnSuccessDeployProcess" data-toggle="modal" data-target=".successDeployProcess">
+                                                <i class="fa fa-check"></i> 成功
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs btn-custom btnFailDeployProcess" data-toggle="modal" data-target=".failDeployProcess">
+                                                <i class="fa fa-close"></i> 失败
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--success process module-->
+<div class="modal fade successDeployProcess" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定强制成功该进程？</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_success_process" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--success process module-->
+
+<!--fail process module-->
+<div class="modal fade failDeployProcess" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定强制失败该进程？</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_fail_process" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--fail process module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}
+

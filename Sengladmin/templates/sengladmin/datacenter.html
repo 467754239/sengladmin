@@ -1,0 +1,602 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>数据中心列表<small></small></h2>
+                        <button id="add_datacenter" type="button" class="btn btn-success btn-sm btn-right" data-toggle="modal" data-target=".add_datacenter">新增数据中心</button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>类型</th>
+                                    <th>环境</th>
+                                    <th>地理</th>
+                                    <th>区域</th>
+                                    <th>状态</th>
+                                    <!--th>deploy</th>
+                                    <th>qurom</th-->
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for datacenter in context.rsp_body.datacenters %}
+                                    <tr>
+                                        <td>{{ datacenter.name }}</td>
+                                        <td>{{ datacenter.type }}</td>
+                                        <td>{{ datacenter.env }}</td>
+                                        <td>{{ datacenter.location }}</td>
+                                        <td>{{ datacenter.region }}</td>
+                                        <td>{{ datacenter.status }}</td>
+                                        <!--td>{{ datacenter.deploy }}</td>
+                                        <td>{{ datacenter.qurom }}</td-->
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-xs btn-custom btnGetDatacenter" data-toggle="modal" data-target=".getDatacenter">
+                                                <i class="fa fa-search-plus"></i> 详情
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-xs btn-custom btnModifyDatacenter" data-toggle="modal" data-target=".modifyDatacenter">
+                                                <i class="fa fa-pencil"></i> 编辑
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-xs btn-custom btnUnlockDatacenter" data-toggle="modal" data-target=".unlockDatacenter">
+                                                <i class="fa fa-unlock"></i> 解锁
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-xs btn-custom btnLockDatacenter" data-toggle="modal" data-target=".lockDatacenter">
+                                                <i class="fa fa-lock"></i> 锁定
+                                            </button>
+                                            <button type="button" class="btn btn-dark btn-xs btn-custom btnSyncDatacenter" data-toggle="modal" data-target=".syncDatacenter">
+                                                <i class="fa fa-exchange"></i> 同步
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs btn-custom btnRemoveDatacenter" data-toggle="modal" data-target=".removeDatacenter">
+                                                <i class="fa fa-trash-o"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--add datacenter password module-->
+<div class="modal fade add_datacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="ModalPsd">新增数据中心</h4>
+            </div>
+            <div class="modal-body">
+                <div id="testmodal" style="padding: 5px 20px;" class="form-group">
+                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_name" name="old_password" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_type">类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="dc_type" class="form-control">
+                                    <option>ALIYUN</option>
+                                    <option>AWS</option>
+                                    <option>IDC</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_env">环境<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="dc_env" class="form-control">
+                                    <option>dev</option>
+                                    <option>production</option>
+                                    <option>test</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_location">地理<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="dc_location" class="form-control">
+                                    <option>Asia-Pacific</option>
+                                    <option>CN</option>
+                                    <option>EU</option>
+                                    <option>US-West</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_region">区域<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="dc_region" class="form-control">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>agent</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_agent_version">version<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_agent_version" name="new_password" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_agent_file_path">file path<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_agent_file_path" name="new_password" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_agent_access_key">access id<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="dc_agent_access_key" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_agent_secret_access">access key<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="dc_agent_secret_access" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>deploy</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_deploy_region">region<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="dc_deploy_region" class="form-control">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_deploy_bucket">bucket<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_deploy_bucket" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>qurom</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_qurom_domain">domain<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_qurom_domain" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_qurom_port">port<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="dc_qurom_port" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_qurom_cacert">cacert<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="dc_qurom_cacert" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dc_qurom_cakey">cakey<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="dc_qurom_cakey" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="button_cancel_add" type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_add_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /add datacenter module-->
+
+<!--get datacenter module-->
+<div class="modal fade getDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">数据中心详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_type">类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_dc_type" class="form-control" disabled="true">
+                                    <option>ALIYUN</option>
+                                    <option>AWS</option>
+                                    <option>IDC</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_env">环境<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_dc_env" class="form-control" disabled="true">
+                                    <option>dev</option>
+                                    <option>production</option>
+                                    <option>test</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_location">地理<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_dc_location" class="form-control" disabled="true">
+                                    <option>Asia-Pacific</option>
+                                    <option>CN</option>
+                                    <option>EU</option>
+                                    <option>US-West</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_region">区域<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_dc_region" class="form-control" disabled="true">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>agent</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_agent_version">version<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_agent_version" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_agent_file_path">file path<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_agent_file_path" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_agent_access_key">access id<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_dc_agent_access_key" class="form-control" rows="3" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_agent_secret_access">access key<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_dc_agent_secret_access" class="form-control" rows="3" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>deploy</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_deploy_region">region<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_dc_deploy_region" class="form-control" disabled="true">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_deploy_bucket">bucket<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_deploy_bucket" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>qurom</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_qurom_domain">domain<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_qurom_domain" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_qurom_port">port<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_dc_qurom_port" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_qurom_cacert">cacert<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_dc_qurom_cacert" class="form-control" rows="3" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_dc_qurom_cakey">cakey<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="show_dc_qurom_cakey" class="form-control" rows="3" disabled="true"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /get datacenter module-->
+
+<!--modify datacenter password module-->
+<div class="modal fade modifyDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">数据中心详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_type">类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="md_dc_type" class="form-control">
+                                    <option>ALIYUN</option>
+                                    <option>AWS</option>
+                                    <option>IDC</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_env">环境<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="md_dc_env" class="form-control">
+                                    <option>dev</option>
+                                    <option>production</option>
+                                    <option>test</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_location">地理<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="md_dc_location" class="form-control">
+                                    <option>Asia-Pacific</option>
+                                    <option>CN</option>
+                                    <option>EU</option>
+                                    <option>US-West</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_region">区域<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="md_dc_region" class="form-control">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>agent</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_agent_version">version<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_agent_version" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_agent_file_path">file path<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_agent_file_path" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_agent_access_key">access id<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="md_dc_agent_access_key" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_agent_secret_access">access key<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="md_dc_agent_secret_access" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>deploy</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_deploy_region">region<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="md_dc_deploy_region" class="form-control">
+                                    <option>ap-southeast-2</option>
+                                    <option>cn-north-1</option>
+                                    <option>eu-central-1</option>
+                                    <option>us-west-2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_deploy_bucket">bucket<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_deploy_bucket" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <p class="title_line"><span></span><em>qurom</em><span></span></p>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_qurom_domain">domain<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_qurom_domain" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_qurom_port">port<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="md_dc_qurom_port" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_qurom_cacert">cacert<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="md_dc_qurom_cacert" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_dc_qurom_cakey">cakey<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="md_dc_qurom_cakey" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_modify_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /modify datacenter module-->
+
+<!--unlock datacenter module-->
+<div class="modal fade unlockDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定解锁该数据中心？</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6 class="modal-title">解锁后，该数据中心的所有服务将恢复被允许升级，直到再次锁定</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_unlock_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--unlock datacenter module-->
+
+<!--lock datacenter module-->
+<div class="modal fade lockDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定锁定该数据中心？</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6 class="modal-title">锁定后，该数据中心的所有服务将不允许升级，直到解锁</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_lock_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--lock datacenter module-->
+
+<!--sync datacenter module-->
+<div class="modal fade syncDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定同步该数据中心？</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6 class="modal-title">将该数据中心的信息同步到对应的Consul中</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_sync_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--sync datacenter module-->
+
+<!--remove datacenter module-->
+<div class="modal fade removeDatacenter" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定删除该数据中心？</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="authorize">超级授权<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="password" id="authorize" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_remove_datacenter" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--remove datacenter module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}

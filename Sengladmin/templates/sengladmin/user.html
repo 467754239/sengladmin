@@ -1,0 +1,130 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+    <div class="">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>用户列表<small></small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>账号</th>
+                                    <th>姓名</th>
+                                    <th>联系方式</th>
+                                    <th>所属角色</th>
+                                    <th>注册时间</th>
+                                    <th>上次登录时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in context.rsp_body.users %}
+                                    <tr>
+                                        <td>{{ user.account }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.phone }}</td>
+                                        <td>{{ user.role }}</td>
+                                        <td>{{ user.create_time }}</td>
+                                        <td>{{ user.last_time }}</td>
+                                        <td>
+                                            <button type="button" style="margin-bottom:0px" class="btn btn-primary btn-xs button_allot_role" data-toggle="modal" data-target=".setRole">
+                                                <i class="fa fa-male"></i> 分配角色
+                                            </button>
+                                            <button type="button" style="margin-bottom:0px" class="btn btn-warning btn-xs button_reset_pass btnResetPass" data-toggle="modal" data-target=".resetPass">
+                                                <i class="fa fa-cog"></i> 重置密码
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--reset password module-->
+<div class="modal fade resetPass" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="ModalPsd">确定重置密码？</h4>
+            </div>
+            <div class="modal-footer">
+                <button id="button_cancel_reset" type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_reset_pass" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /reset password module-->
+
+<!--set role module-->
+<div class="modal fade setRole" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">分配角色</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_account">账号<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="user_account" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_name">姓名<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="user_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_role">角色<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="user_role" class="form-control"></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_set_role" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /set role module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+        });
+    </script>
+{% endblock %}

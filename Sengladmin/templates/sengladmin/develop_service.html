@@ -1,0 +1,420 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>服务列表<small></small></h2>
+                        <button id="add_service" type="button" class="btn btn-success btn-sm btn-right" data-toggle="modal" data-target=".add_service">新增服务</button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table id="datatable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>描述</th>
+                                    <!--th>git路径</th-->
+                                    <th>编译触发</th>
+                                    <th>Docker镜像</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in context.rsp_body.services %}
+                                    <tr>
+                                        <td>{{ service.name }}</td>
+                                        <td>{{ service.description }}</td>
+                                        <!--td>{{ service.git_path }}</td-->
+                                        <td>{{ service.build_trigger }}</td>
+                                        <td>{{ service.build_docker_image }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-xs btn-custom btnGetService" data-toggle="modal" data-target=".getService">
+                                                <i class="fa fa-search-plus"></i> 详情
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-xs btn-custom btnModifyService" data-toggle="modal" data-target=".modifyService">
+                                                <i class="fa fa-pencil"></i> 编辑
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs btn-custom btnRemoveService" data-toggle="modal" data-target=".removeService">
+                                                <i class="fa fa-trash-o"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--add datacenter password module-->
+<div class="modal fade add_service" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">新增服务</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="service_name" required="required" class="form-control col-md-7 col-xs-12" placeholder="请与git中库名保持一致">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_desc">描述<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="service_desc" required="required" class="form-control col-md-7 col-xs-12" placeholder="暂不支持中文描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_git_path">git 路径<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="service_git_path" required="required" class="form-control col-md-7 col-xs-12" placeholder="git@xxx.xxx.xxx.xxx:xxxxx">
+                            </div>
+                        </div>
+                        <!--div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_build_env_type">编译环境类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="service_build_env_type" class="form-control" required="required">
+                                    <option value="NULL">NULL</option>
+                                    <option value="JAVA">JAVA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_build_env_value">编译环境版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="service_build_env_value" class="form-control" required="required">
+                                    <option value="NULL">NULL</option>
+                                    <option value="1.6">1.6</option>
+                                    <option value="1.7">1.7</option>
+                                    <option value="1.8">1.8</option>
+                                </select>
+                            </div>
+                        </div-->
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_build_docker_image_id">Docker镜像<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <!--input type="text" id="service_build_docker_image_id" required="required" class="form-control col-md-7 col-xs-12"-->
+                                <select id="service_build_docker_image_id" class="form-control" required="required">
+                                    <option value="sengled/build-images-base1.0">sengled/build-images-base1.0</option>
+                                    <option value="sengled/build-images-media1.0">sengled/build-images-media1.0</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_build_trigger">编译触发<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="iradio_flat-green" style="position: relative;">
+                                        <input type="radio" class="flat" name="gender" id="genderM" value="auto" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                    </div>
+                                    <label for="genderM">自动</label>
+                                    <div class="iradio_flat-green" style="position: relative;">
+                                        <input type="radio" class="flat" name="gender" id="genderF" value="manual" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                    </div>
+                                    <label for="genderF">手动</label>
+                            </div>
+                        </div>
+                        <div class="form-group forM">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service_build_trigger_str">自动规则<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="service_build_trigger_str" required="required" class="form-control col-md-7 col-xs-12" value="* * * * *" placeholder="* * * * *" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_add_service" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /add service module-->
+
+<!--get service module-->
+<div class="modal fade getService" tabindex="-1" role="dialog" aria-labelledby="GetService" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">服务详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_desc">描述<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_desc" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_git_path">git 路径<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_git_path" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <!--div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_build_env_type">编译环境类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_service_build_env_type" class="form-control" disabled="true">
+                                    <option>NULL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_build_env_value">编译环境版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="show_service_build_env_value" class="form-control" disabled="true">
+                                    <option>NULL</option>
+                                </select>
+                            </div>
+                        </div-->
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_build_trigger">编译触发<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="iradio_flat-green " style="position: relative;">
+                                    <input type="radio"  class="flat" name="genderShow" id="genderShowAuto" value="auto" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                </div>
+                                <label for="genderShowAuto">自动</label>
+                                <div class="iradio_flat-green " style="position: relative;">
+                                    <input type="radio" class="flat" name="genderShow" id="genderShowManual" value="manual" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                </div>
+                                <label for="genderShowManual">手动</label>
+                            </div>
+                        </div>
+                        <div class="form-group forShow">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_build_trigger_str">自动规则<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_build_trigger_str" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_build_docker_image_id">Docker镜像<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_build_docker_image_id" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_status">状态<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_status" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="show_service_datacenters">已部署数据中心<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="show_service_datacenters" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /get service module-->
+
+<!--modify service module-->
+<div class="modal fade modifyService" tabindex="-1" role="dialog" aria-labelledby="ModifyService" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">服务详细信息</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 5px 20px;" class="form-group">
+                    <form data-parsley-validate class="form-horizontal form-label-left" autocomplete="off">
+                        <span id="current_account" hidden>{{ account }}</span>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_name">名称<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_name" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_desc">描述<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_desc" required="required" class="form-control col-md-7 col-xs-12" placeholder="暂不支持中文描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_git_path">git 路径<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_git_path" required="required" class="form-control col-md-7 col-xs-12">
+                            </div>
+                        </div>
+                        <!--div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_build_env_type">编译环境类型<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="modify_service_build_env_type" class="form-control">
+                                    <option value="NULL">NULL</option>
+                                    <option value="JAVA">JAVA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_build_env_value">编译环境版本<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="modify_service_build_env_value" class="form-control">
+                                    <option value="NULL">NULL</option>
+                                    <option value="1.6">1.6</option>
+                                    <option value="1.7">1.7</option>
+                                    <option value="1.8">1.8</option>
+                                </select>
+                            </div>
+                        </div-->
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_build_trigger">编译触发<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="iradio_flat-green " style="position: relative;">
+                                    <input type="radio"  class="flat" name="genderModify" id="genderModifyAuto" value="auto" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                </div>
+                                <label for="genderModifyAuto">自动</label>
+                                <div class="iradio_flat-green " style="position: relative;">
+                                    <input type="radio" class="flat" name="genderModify" id="genderModifyManual" value="manual" data-parsley-multiple="gender" style="position: absolute; opacity: 0;">
+                                </div>
+                                <label for="genderModifyManual">手动</label>
+                            </div>
+                        </div>
+                        <div class="form-group forModify">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_build_trigger_str">自动规则<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_build_trigger_str" required="required" class="form-control col-md-7 col-xs-12" disabled="true" value="* * * * *" placeholder="* * * * *">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_build_docker_image_id">Docker镜像<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <!--input type="text" id="modify_service_build_docker_image_id" required="required" class="form-control col-md-7 col-xs-12"-->
+                                <select id="modify_service_build_docker_image_id" class="form-control" required="required">
+                                    <option value="sengled/build-images-base1.0">sengled/build-images-base1.0</option>
+                                    <option value="sengled/build-images-media1.0">sengled/build-images-media1.0</option>
+                                </select>
+                            </div>  
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_status">状态<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_status" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modify_service_datacenters">已部署数据中心<span class="required"> *</span></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="modify_service_datacenters" required="required" class="form-control col-md-7 col-xs-12" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_modify_service" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /modify service module-->
+
+<!--remove service module-->
+<div class="modal fade removeService" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定删除服务？</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_remove_service" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--remove service module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/green.css" rel="stylesheet">
+{% endblock %}
+
+{% block import_js %}
+    <script src="/static/js/jquery.dataTables.min.js"></script>
+    <script src="/static/js/dataTables.bootstrap.min.js"></script>
+    <script src="/static/js/icheck.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#datatable').dataTable();
+            
+            //for create radio
+            $('.forM').hide();
+            $('input').on('ifChecked', function(event){
+              var val=$('input:radio[name="gender"]:checked').val();
+              if(val=='auto'){
+                  $('.forM').show();
+              }else{
+                  $('.forM').hide();
+              }
+            });
+
+            //for modify radio
+            $('.forModify').hide();
+            $('input').on('ifChecked', function(event){
+              var val=$('input:radio[name="genderModify"]:checked').val();
+              if(val=='auto'){
+                  $('.forModify').show();
+              }else{
+                  $('.forModify').hide();
+              }
+            });
+
+            //for show radio
+            $('.forShow').hide();
+            $('input').on('ifChecked', function(event){
+              var val=$('input:radio[name="genderShow"]:checked').val();
+              if(val=='auto'){
+                  $('.forShow').show();
+              }else{
+                  $('.forShow').hide();
+              }
+            });
+
+        });
+
+        $('#lockService').on('hide.bs.modal', function () {
+            $(this).removeData();
+            $(this).removeData("bs.modal");
+        });
+    </script>
+{% endblock %}
