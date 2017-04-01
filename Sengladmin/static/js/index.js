@@ -323,7 +323,7 @@ $(function(){
             )
         }
     );
-
+    /*
     $('#add_consignee').on(
         'click', function(){
             $.ajax({
@@ -347,17 +347,54 @@ $(function(){
                 }
            })
         }
+    );*/
+
+    $('#add_consignee').on(
+        'click', function(){
+            $.ajax({
+                url: '/sengladmin/resource/',
+                type: 'get',
+                dataType: 'json',
+                data: {},
+                success:function(resp){
+                    if(resp.rsp_head.rsp_code == 200){
+                        var services = resp.rsp_body.services
+                        $('#consignee_service').empty()
+                        $.each(
+                            services,
+                            function(i, d){
+                                var option = '<li>' + services[i].name + '</li>'
+                                $('#consignee_service').append(option)
+                            }
+                        )
+                    }
+                }
+           })
+        }
     );
 
     $('#button_add_consignee').on(
         'click', function(){
+            var select_service = $('#consignee_service>li.height')
+            var services = []
+            for(var i=0;i<select_service.length;i++){
+                services.push(select_service.eq(i).html())
+            }
+
+            var select_group = $('#consignee_group>li.height')
+            var groups = []
+            for(var i=0;i<select_group.length;i++){
+                groups.push(select_group.eq(i).html())
+            }
+
             var data = {
                 'name': $('#consignee_name').val(),
                 'email': $('#consignee_email').val(),
-                'group': $('#consignee_group').val(),
-                'service': $('#consignee_service').val()
+                'group': groups,
+                //'service': $('#consignee_service').val()
+                'service': services
             }
-            console.log(data)
+            
             $.ajax({
                 url: '/sengladmin/consignee/',
                 type: 'put',
@@ -387,6 +424,14 @@ $(function(){
                             $('#md_consignee_name').val(resp.rsp_body.consignee.name)
                             $('#md_consignee_email').val(resp.rsp_body.consignee.email)
                             $('#md_consignee_group').val(resp.rsp_body.consignee.group)
+                            var groups = resp.rsp_body.consignee.group
+                            $.each(
+                                groups,
+                                function(i, d){
+                                    $('#md_consignee_group li[value=' + groups[i] + ']').addClass("height")
+                                }
+                            )
+
                             var services = resp.rsp_body.service
                             $.each(
                                 services,
@@ -413,10 +458,16 @@ $(function(){
             for(var i=0;i<select_service.length;i++){
                 services.push(select_service.eq(i).html())
             }
+            var select_group = $('#md_consignee_group>li.height')
+            var groups = []
+            for(var i=0;i<select_group.length;i++){
+                groups.push(select_group.eq(i).html())
+            }
+
             var data = {
                 'name': $('#md_consignee_name').val(),
                 'email': $('#md_consignee_email').val(),
-                'group': $('#md_consignee_group').val(),
+                'group': groups,
                 'service': services
             }
             $.ajax({

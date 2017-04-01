@@ -73,17 +73,19 @@
                         <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="consignee_group">分组<span class="required"> *</span></label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <select id="consignee_group" class="form-control">
-                                    <option>dev</option>
-                                    <option>production</option>
-                                    <option>test</option>
-                                </select>
+                                <ul id="consignee_group" class="md_group_ul">
+                                    <li>dev</li>
+                                    <li>production</li>
+                                    <li>test</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="consignee_service">服务<span class="required"> *</span></label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <select id="consignee_service" class="form-control" multiple></select>
+                                <!--select id="consignee_service" class="form-control" multiple></select-->
+                                <ul id="consignee_service" class="md_consignee_ul">
+                                </ul>
                             </div>
                         </div>
                     </form>
@@ -124,11 +126,11 @@
                         <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="md_consignee_group">分组<span class="required"> *</span></label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <select id="md_consignee_group" class="form-control" >
-                                    <option>dev</option>
-                                    <option>production</option>
-                                    <option>test</option>
-                                </select>
+                                <ul id="md_consignee_group" class="md_group_ul">
+                                    <li value="dev">dev</li>
+                                    <li value="production">production</li>
+                                    <li value="test">test</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="form-group">
@@ -186,6 +188,15 @@
             $('#datatable').dataTable();
         });
 
+        $('#consignee_group').on('click','li',function(){
+            $(this).toggleClass('height')
+        })
+        $('#md_consignee_group').on('click','li',function(){
+            $(this).toggleClass('height')
+        })
+        $('#consignee_service').on('click','li',function(){
+            $(this).toggleClass('height')
+        })
         $('#md_consignee_service').on('click','li',function(){
             $(this).toggleClass('height')
         })

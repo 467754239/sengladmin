@@ -266,7 +266,7 @@ def consignee(request):
         context = ops_handler.create_consignee(
             request_put.get('name', None),
             request_put.get('email', None),
-            request_put.get('group', None),
+            request_put.getlist('group', None),
             request_put.getlist('service', None)
         )
         return HttpResponse(json.dumps(context), content_type="application/json")
@@ -281,7 +281,7 @@ def consignee(request):
         context = ops_handler.modify_consignee(
             request.POST.get('name', None),
             request.POST.get('email', None),
-            request.POST.get('group', None),
+            request.POST.getlist('group', None),
             request.POST.getlist('service', None)
         )
         return HttpResponse(json.dumps(context), content_type="application/json")
@@ -442,11 +442,14 @@ def group(request):
     context = {}
     if request.method == 'GET':
         group_name = request.GET.get('group_name', None)
+        group_datacenter = request.GET.get('sel_group_datacenter', None)
         ops_handler = opsHandler.OpsHandler(request, logger)
         if not group_name:
-            context = ops_handler.all_groups()
+            context = ops_handler.all_groups(group_datacenter)
+            resources = ops_handler.all_datacenters()
             resp_json = {
                 'context': context, 
+                'resources': json.dumps(resources),
                 'current_permission': json.dumps(request.session.get('current_permissions', {})),
                 'user_name': request.session.get('user_name', None),
                 'account': request.session.get('user_account', None)

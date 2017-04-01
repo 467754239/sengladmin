@@ -70,6 +70,11 @@
 .md_consignee_ul li:hover{background: #fff}
 .md_consignee_ul li.height{background:#69BFF7;color:#fff;border-bottom: 1px solid #fff;}
 
+.md_group_ul{width: 100%;height:150px;overflow-x: hidden;overflow-y: auto;cursor: pointer;list-style: none;border:1px solid #ccc;padding:0;}
+.md_group_ul li{height: 35px;line-height: 35px;padding-left: 12px;}
+.md_group_ul li:hover{background: #fff}
+.md_group_ul li.height{background:#69BFF7;color:#fff;border-bottom: 1px solid #fff;}
+
 .radio-ins-custom{
     position: absolute;
     top: 0%;

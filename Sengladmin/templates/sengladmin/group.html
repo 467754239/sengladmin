@@ -9,6 +9,15 @@
                         <button id="add_group" type="button" class="btn btn-success btn-sm btn-right" data-toggle="modal" data-target=".add_group">新增部署组</button>
                         <div class="clearfix"></div>
                     </div>
+                    <div class="x_title">
+                        <div class="row">
+                            <form method="GET" action="/sengladmin/group/">
+                                <label class="col-sm-1 text-left" for="sel_group_datacenter" style="line-height: 34px;">数据中心<span class="required"> *</span></label>
+                                <select id="sel_group_datacenter" name="sel_group_datacenter" class="col-md-3" style="height: 34px;"></select>
+                                <button class="btn btn-primary submit" data-dismiss="modal" style="float: right">检索</button>
+                            </form>
+                        </div>
+                    </div>
                     <div class="x_content">
                         <table id="datatable" class="table table-striped table-bordered">
                             <thead>
@@ -500,6 +509,22 @@
             $('#monitors').bootstrapDualListbox({
                 selectorMinimalHeight: 160
             });
+
+            fill_resource()
         });
+
+        function fill_resource() {
+            var resources = {{ resources|safe }}
+            datacenters = resources.rsp_body.datacenters
+            $('#sel_group_datacenter').empty()
+            $.each(
+                datacenters,
+                function(i, d){
+                    $('#sel_group_datacenter').append(
+                        '<option value="' + datacenters[i].name + '">' + datacenters[i].name + '</option>'
+                    )
+                }
+            )
+        }
     </script>
 {% endblock %}

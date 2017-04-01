@@ -148,7 +148,7 @@ class DatacenterVersion(Document):
 class Consignee(Document):
     name = StringField(required = True)
     email = StringField(required = True)
-    group = StringField(required = True)
+    group = ListField(required = False)
     service = ListField(required = False)
 
 class Event(Document):

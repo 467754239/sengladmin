@@ -97,6 +97,8 @@ class OpsHandler(object):
         for consignee_instance in consignees_instances:
             if 'service' in consignee_instance.keys():
                 consignee_instance['service'] = ','.join(consignee_instance['service'])
+            if 'group' in consignee_instance.keys():
+                consignee_instance['group'] = ','.join(consignee_instance['group'])
         rsp_body = {'rsp_body': {'consignees': consignees_instances}}
         rsp = self.rsp_handler.generate_rsp_msg(200, rsp_body)
         return rsp
@@ -503,8 +505,11 @@ class OpsHandler(object):
         rsp = self.rsp_handler.generate_rsp_msg(200, None)
         return rsp
 
-    def all_groups(self):
-        groups = DeployGroup.objects.exclude('id').order_by('name')
+    def all_groups(self, datacenter):
+        if not datacenter:
+            groups = DeployGroup.objects.exclude('id').order_by('name')
+        else:
+            groups = DeployGroup.objects(datacenter = datacenter).exclude('id').order_by('name')
         groups_instances = json.loads(groups.to_json())
         rsp_body = {'rsp_body': {'groups': groups_instances}}
         rsp = self.rsp_handler.generate_rsp_msg(200, rsp_body)
@@ -1345,7 +1350,7 @@ class OpsHandler(object):
         return rsp
 
     def verify_deploy(self, env, package_object):
-        ret = None
+        ret = 200
         if env == 'test':
             status_set = set(package_object.status.values())
             if len(status_set) == 1 and 'pass' in status_set:
