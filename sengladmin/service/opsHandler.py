@@ -8,7 +8,7 @@
 
 from django.conf import settings
 from django.views.decorators.csrf import requires_csrf_token
-from sengladmin.tasks import consul_sync_datacenter,consul_add_group,consul_remove_datacenter,consul_sync_health,consul_sync_config,consul_sync_configs,consul_remove_config,pre_process_package,package_deploy,consul_sync_monitor,consul_remove_group
+from sengladmin.tasks import consul_sync_datacenter,consul_add_group,consul_remove_datacenter,consul_sync_health,consul_sync_config,consul_sync_configs,consul_remove_config,pre_process_package,package_deploy,consul_sync_monitor,consul_remove_group,package_upload
 
 import os
 import time
@@ -1268,11 +1268,18 @@ class OpsHandler(object):
             rsp = self.rsp_handler.generate_rsp_msg(24004, None)
             return rsp
 
+        datacenters = Datacenter.objects(env = 'dev', region = package['region'])
+        if not datacenters:
+            rsp = self.rsp_handler.generate_rsp_msg(22002, None)
+            return rsp
+        datacenter = datacenters[0]
+
         # audit
         if status == 'pass':
             file_name = os.path.basename(package.file_path).replace('tar.gz', '%s.tar.gz' % version)
             local_file_path = os.path.join(settings.PACKAGE_SAVE_PATH, service, file_name)
-            service_package = ServicePackage(service, version, package.region, package.bucket, package.file_path, local_file_path, package.md5['source'], self.LOG)
+            #service_package = ServicePackage(service, version, package.region, package.bucket, package.file_path, local_file_path, package.md5['source'], self.LOG)
+            service_package = ServicePackage(json.loads(package.to_json()), local_file_path, json.loads(datacenter.to_json()), LOG = self.LOG)
             service_package.uncompress()
             if type == 'port':
                 service_package.pass_port()
@@ -1290,7 +1297,7 @@ class OpsHandler(object):
         package.status[type] = update_status
         package.save()
         if package.status['sql'] == 'pass' and package.status['port'] == 'pass' and package.status['config'] == 'pass':
-            package_deploy.delay(package = json.loads(package.to_json()), target_env = None, operator = None)
+            package_deploy.delay(package = json.loads(package.to_json()), target_env = 'dev', operator = 'auto')
         rsp = self.rsp_handler.generate_rsp_msg(200, None)
         return rsp
 
@@ -1309,7 +1316,7 @@ class OpsHandler(object):
         package.status['port'] = 'pass'
         package.status['config'] = 'pass'
         package.save()
-        package_deploy.delay(package = json.loads(package.to_json()), target_env = None, operator = None)
+        package_deploy.delay(package = json.loads(package.to_json()), target_env = 'dev', operator = 'auto')
         rsp = self.rsp_handler.generate_rsp_msg(200, None)
         return rsp
 
@@ -1330,12 +1337,6 @@ class OpsHandler(object):
             return rsp
         service = services[0]
 
-        #groups = DeployGroup.objects(name = group_name, datacenter = datacenter_name, service = service_name)
-        #if not groups:
-        #    rsp = self.rsp_handler.generate_rsp_msg(22009, None)
-        #    return rsp
-        #group = groups[0]
-
         packages = Package.objects(service = service_name, version = version)
         if not packages:
             rsp = self.rsp_handler.generate_rsp_msg(24002, None)
@@ -1344,7 +1345,8 @@ class OpsHandler(object):
 
         ret = self.verify_deploy(datacenter.env, package)
         if ret == 200:
-            package_deploy.delay(package = json.loads(package.to_json()), target_env = datacenter.env, operator = operator)
+            #package_deploy.delay(package = json.loads(package.to_json()), target_env = datacenter.env, operator = operator)
+            package_deploy.delay(package = json.loads(package.to_json()), target_env = datacenter.env, operator = operator, datacenter_name = datacenter.name)
 
         rsp = self.rsp_handler.generate_rsp_msg(ret, None)
         return rsp
@@ -1363,6 +1365,40 @@ class OpsHandler(object):
             else:
                 ret = 25002
         return ret
+
+    def deploy_upload(self, datacenter_name, service_name, version, operator):
+        if not datacenter_name or not service_name or not version:
+            rsp = self.rsp_handler.generate_rsp_msg(29001, None)
+            return rsp
+     
+        datacenters = Datacenter.objects(name = datacenter_name)
+        if not datacenters:
+            rsp = self.rsp_handler.generate_rsp_msg(22008, None)
+            return rsp
+        datacenter = datacenters[0]
+
+        services = Service.objects(name = service_name)
+        if not services:
+            rsp = self.rsp_handler.generate_rsp_msg(22010, None)
+            return rsp
+        service = services[0]
+
+        packages = Package.objects(service = service_name, version = version)
+        if not packages:
+            rsp = self.rsp_handler.generate_rsp_msg(24002, None)
+            return rsp
+        package = packages[0]
+
+        ret = self.verify_deploy(datacenter.env, package)
+        if ret == 200:
+            package_upload.delay(
+                datacenter = json.loads(datacenter.to_json()),
+                package = json.loads(package.to_json()),
+                operator = operator
+            )
+
+        rsp = self.rsp_handler.generate_rsp_msg(ret, None)
+        return rsp
 
     def all_deploy_record(self):
         deploy_records = DeployRecord.objects.order_by('strat_time')

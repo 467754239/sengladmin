@@ -20,17 +20,18 @@ from commInception import InceptionHandler
 from sengladmin.models import Datacenter,DeployGroup,Service,Health,Config,Package,Q
 
 class ServicePackage(object):
-    def __init__(self, service, version, region, file_path, tar_file, md5, env, LOG = None):
-        self.service = service
-        self.version = version
-        self.region = region
-        self.file_path = file_path
+    def __init__(self, package, tar_file, datacenter, LOG = None):
+        self.service = package['service']
+        self.version = package['version']
+        self.region = datacenter['region']
+        self.file_path = package['file_path']
         self.tar_file = tar_file
-        self.md5 = md5
-        self.env = env
+        self.md5 = package['md5']['source']
+        self.env = datacenter['env']
+        self.datacenter = datacenter
         self.LOG = LOG
         self.new_md5 = None
-        self.uncompress_path = os.path.join('/tmp', service, version)
+        self.uncompress_path = os.path.join('/tmp', package['service'], package['version'])
         self.md5_status = 'pass'
         self.sql_status = 'pass'
         self.endpoint_status = 'pass'
@@ -262,15 +263,6 @@ class ServicePackage(object):
             else:
                 package.audit['port'] = [item[1] + ':' + str(tem[0]) for item in want_endpoint.items()]
         self.LOG.debug('audit port, audit is {0}'.format(package.audit))
-        #else:
-        #    if package.audit:
-        #        if 'config' in package.audit.keys():
-        #            if not package.audit['config']:
-        #                package.audit = {}
-        #            else:
-        #                package.audit['port'] = None
-        #        else:
-        #            package.audit = {}
         package.save()
         return
 
@@ -290,16 +282,6 @@ class ServicePackage(object):
         packages = Package.objects(service = self.service, version = self.version)
         package = packages[0]
 
-        #if package.audit:
-        #    if 'config' in package.audit.keys():
-        #        if not package.audit['config']:
-        #            package.audit = {}
-        #        else:
-        #            package.audit['port'] = None
-        #    else:
-        #        package.audit = {}
-
-        #package.audit['port'] = None
         package.save()
         return
 
@@ -316,17 +298,16 @@ class ServicePackage(object):
             return
         config.read(config_file)
         want_keys = config.defaults()
-        datacenters = Datacenter.objects()
         add_keys = []
-        for datacenter in datacenters:
-            config = Config.objects(Q(datacenter = datacenter.name) & (Q(domain = self.service) | Q(domain = 'GLOBAL')))
-            exist_keys = [item.key for item in config]
-            for key in want_keys:
-                if key == 'PUBLIC_IPV4' or key == 'PRIVATE_IPV4':
-                    continue
-                if key not in exist_keys:
-                    add_keys.append(key)
-                    continue
+        
+        config = Config.objects(Q(datacenter = self.datacenter['name']) & (Q(domain = self.service) | Q(domain = 'GLOBAL')))
+        exist_keys = [item.key for item in config]
+        for key in want_keys:
+            if key == 'PUBLIC_IPV4' or key == 'PRIVATE_IPV4':
+                continue
+            if key not in exist_keys:
+                add_keys.append(key)
+                continue
 
         packages = Package.objects(service = self.service, version = self.version)
         package = packages[0]
@@ -338,15 +319,6 @@ class ServicePackage(object):
             else:
                 package.audit['config'] = [key for key in add_keys]
         self.LOG.debug('audit config, audit is {0}'.format(package.audit))
-        #else:
-        #    if package.audit:
-        #        if 'port' in package.audit.keys():
-        #            if not package.audit['port']:
-        #                package.audit = {}
-        #            else:
-        #                package.audit['config'] = None
-        #        else:
-        #            package.audit = {}
         package.save()
         return
 
@@ -362,11 +334,24 @@ class ServicePackage(object):
         package.save()
         return
 
+    def set_upload(self):
+        packages = Package.objects(service = self.service, version = self.version)
+        package = packages[0]
+        package.upload[self.datacenter['name']] = self.new_md5
+        package.save()
+        return self.new_md5
+
     def clear(self):
         shutil.rmtree(self.uncompress_path)
         return
 
     def get_release_note(self):
+        if self.service == 'agent':
+            release_note_file = os.path.join(self.uncompress_path, 'release_note.txt')
+        else:
+            release_note_file = os.path.join(self.uncompress_path, 'release_note', 'release_note.txt')
+        with open(release_note_file) as file_handler:
+            self.release_note = file_handler.read()
         return self.release_note
 
     def get_service(self):
@@ -374,18 +359,6 @@ class ServicePackage(object):
 
     def process_config(self):
         self.LOG.debug('self.region is {0}'.format(self.region))
-        datacenters = Datacenter.objects(region = self.region, env = self.env)
-        datacenter = datacenters[0]
-
-        self.uncompress()
-
-        # get release not by the way
-        if self.service == 'agent':
-            release_note_file = os.path.join(self.uncompress_path, 'release_note.txt')
-        else:
-            release_note_file = os.path.join(self.uncompress_path, 'release_note', 'release_note.txt')
-        with open(release_note_file) as file_handler:
-            self.release_note = file_handler.read()
 
         if self.service == 'agent':
             return
@@ -398,7 +371,7 @@ class ServicePackage(object):
         self.LOG.debug('want_keys type is {0} value is {1}'.format(type(want_keys), want_keys))
 
         config_context_list = ['[DEFAULT]', 'PUBLIC_IPV4=$PUBLIC_IPV4', 'PRIVATE_IPV4=$PRIVATE_IPV4', '']
-        configs = Config.objects(Q(datacenter = datacenter.name) & (Q(domain = self.service) | Q(domain = 'GLOBAL'))).order_by('key').order_by('-domain')
+        configs = Config.objects(Q(datacenter = self.datacenter['name']) & (Q(domain = self.service) | Q(domain = 'GLOBAL'))).order_by('key').order_by('-domain')
         for config in configs:
             if config.key not in want_keys:
                 continue
@@ -419,10 +392,11 @@ class ServicePackage(object):
             file_handler.write('\n'.join(config_context_list))
         self.compress()
         
-        s3_handler = S3Handler(self.region, datacenter.agent['access_key_id'], datacenter.agent['secret_access_key'], LOG = self.LOG)
+        s3_handler = S3Handler(self.region, self.datacenter['agent']['access_key_id'], self.datacenter['agent']['secret_access_key'], LOG = self.LOG)
         s3_handler.connect()
-        s3_handler.put_file(datacenter.deploy['bucket'], self.file_path, os.path.join(self.uncompress_path, '{0}.tar.gz'.format(self.service)))
+        s3_handler.put_file(self.datacenter['deploy']['bucket'], self.file_path, os.path.join(self.uncompress_path, '{0}.tar.gz'.format(self.service)))
         self.LOG.info('xxxxxxxxxxxxxxxxxxxxxxxxx upload s3 finished.')
+
         with open(os.path.join(self.uncompress_path, '{0}.tar.gz'.format(self.service))) as file_handler:
             md5 = hashlib.md5(file_handler.read()).hexdigest()
             self.new_md5 = md5
@@ -430,9 +404,7 @@ class ServicePackage(object):
         self.LOG.debug('new_md5 is {0}'.format(self.new_md5))
         packages = Package.objects(service = self.service, version = self.version)
         package = packages[0]
-        package.md5[datacenter.name] = md5
+        package.md5[self.datacenter['name']] = md5
         package.save()
-
-        #self.clear() 
         return
 

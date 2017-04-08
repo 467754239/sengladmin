@@ -1,0 +1,101 @@
+{% extends 'sengladmin/welcome.html' %}
+{% block content %}
+<div class="right_col" role="main">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>上传中心<small>你的时间非常值钱</small></h2>
+                        <div class="clearfix"></div>
+                        <input id="all_resource" type="hidden" value="{{ context }}"/>
+                    </div>
+                    <div class="x_content">
+                        <br>
+                        <form id="demo-form2" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="datacenter">数据中心<span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <select id="datacenter" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="service">服务<span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <select id="service" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="version">版本<span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <select id="version" class="form-control">
+                                    </select>
+                                </div>
+                            </div> 
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <button type="button" class="btn btn-default">取消</button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".deployConfirm">确定</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--deploy module-->
+<div class="modal fade deployConfirm" tabindex="-1" role="dialog" aria-labelledby="ModalPsd" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">确定上传？</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin-bottom:0px" data-dismiss="modal">取消</button>
+                <button id="button_upload" type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--deploy module-->
+
+{% endblock %}
+
+{% block import_css %}
+    <link href="/static/css/green.css" rel="stylesheet">    
+    <link href="/static/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            //console.log($('#all_resource').val());
+            var rsp_msg = JSON.parse($('#all_resource').val());
+            var resource = rsp_msg.rsp_body;
+
+            var datacenter_html = '<option value="">NULL</option>';
+            $.each(resource.datacenters, function(i, d) {
+                datacenter_html += '<option value="' + d.name + '">' + d.name + '</option>'
+            });
+            $('#datacenter').html(datacenter_html);
+
+            var service_html = '<option value="">NULL</option>';
+            $.each(resource.services, function(i, d) {
+                service_html += '<option value="' + d.name + '">' + d.name + '</option>'
+            });
+            $('#service').html(service_html);
+
+
+            getVal();
+            //reqDync();
+        });
+    </script>
+{% endblock %}
+

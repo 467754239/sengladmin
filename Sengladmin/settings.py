@@ -189,9 +189,9 @@ CELERY_RESULT_BACKEND = "mongodb"
 CELERY_MONGODB_BACKEND_SETTINGS = {
     'host': '127.0.0.1',
     'port': '27017',
-    'user': 'xxxx',
-    'password': 'xxxx',
-    'database': 'xxxx',
+    'user': 'sengladmin',
+    'password': 'sengladmin',
+    'database': 'monitor',
     #"taskmeta_collection": "my_taskmeta" # Collection name to use for task output
     'taskmeta_collection': 'taskmeta',
     'maxpoolsize': 10
@@ -202,7 +202,7 @@ CELERYD_TASK_LOG_FORMAT = '[%(asctime)s] [%(processName)s] [%(levelname)s] [%(ta
 CELERYD_LOG_LEVEL = 'DEBUG'
 
 BROKER_BACKEND = 'mongodb'
-BROKER_URL = 'mongodb://$user:$pass@127.0.0.1:27017/$db'
+BROKER_URL = 'mongodb://sengladmin:sengladmin@127.0.0.1:27017/monitor'
 CELERY_IMPORTS = ('sengladmin.tasks',)
 
 APPEND_SLASH = False
@@ -215,9 +215,9 @@ MAIL_SUBJECT_DEPLOY = 'SenglAdmin Deploy Result'
 
 MONGODB = {
     'default': {
-        'NAME': 'xxx',
-        'USER': 'xxx',
-        'PASSWORD': 'xxx',
+        'NAME': 'monitor',
+        'USER': 'sengladmin',
+        'PASSWORD': 'sengladmin',
         'HOST': '127.0.0.1',
         'PORT': '27017',
     }
@@ -235,8 +235,8 @@ APPEND_SLASH = False
 
 # jenkins
 JENKINS_HOST = '127.0.0.1'
-JENKINS_PORT = 1234
-JENKINS_USER = 'xxx'
-JENKINS_PASS = 'xxxx'
+JENKINS_PORT = 9090
+JENKINS_USER = 'root'
+JENKINS_PASS = 'Sengled@!@#$'
 TEMPLATE_JENKINS_CONFIG_XML = os.path.join(os.path.dirname(__file__), 'templates', 'files', 'JENKINS_CONFIG.xml')
 JENKINS_BUILD_TRIGGER = '/var/sengladmin/build-scripts/build-package.py'

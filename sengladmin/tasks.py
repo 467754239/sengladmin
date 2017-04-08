@@ -247,7 +247,7 @@ def consul_remove_group(*args, **kwargs):
 def pre_process_package(*args, **kwargs):
     package = kwargs['package']
 
-    datacenters = Datacenter.objects(region = package['region'])
+    datacenters = Datacenter.objects(region = package['region'], env = 'dev')
     datacenter = datacenters[0]
 
     file_name = os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version'])
@@ -260,7 +260,12 @@ def pre_process_package(*args, **kwargs):
     s3_handler.connect()
     s3_handler.get_file(package['bucket'], package['file_path'], local_file_path)
 
-    service_file = commFile.ServicePackage(package['service'], package['version'], package['region'], package['file_path'], local_file_path, package['md5']['source'], 'dev', LOG = logger)
+    service_file = commFile.ServicePackage(
+        package,
+        local_file_path,
+        json.loads(datacenter.to_json()),
+        LOG = logger
+    )
     if not service_file.audit_md5():
         service_file.set_package_status()
         return
@@ -271,101 +276,154 @@ def pre_process_package(*args, **kwargs):
     service_file.audit_port()
     service_file.audit_config()
     service_file.set_package_status()
-
     service_file.clear()
 
     if service_file.md5_status == 'pass' and service_file.sql_status == 'pass' and service_file.endpoint_status == 'pass' and service_file.config_status == 'pass':
-        package_deploy(package = package, target_env = None, operator = None)
+        package_deploy(package = package, target_env = 'dev', operator = 'auto')
     return
 
 @task()
 def package_deploy(*args, **kwargs):
     package = kwargs['package']
-    if not kwargs['target_env']:
-        target_env = 'dev'
-    else:
-        target_env = kwargs['target_env']
-
-    if not kwargs['operator']:
-        operator = 'auto'
-    else:
-        operator = kwargs['operator']
+    target_env = kwargs['target_env']
+    operator = kwargs['operator']
+    datacenter_name = kwargs.get('datacenter_name', None)
 
     logger.info('deploy begin.....')
 
-    datacenters = Datacenter.objects(env = target_env)
-
     if package['service'] == 'agent':
-        datacenters = Datacenter.objects(region = package['region'], env = target_env)
-        datacenter = datacenters[0]
-        datacenter['agent']['version'] = package['version']
-        datacenter['agent']['file_path'] = package['file_path']
-        datacenter.save()
-        consul_sync_datacenter(datacenter, logger)
-        s3_handler = commAws.S3Handler(datacenter.region, datacenter.agent['access_key_id'], datacenter.agent['secret_access_key'], LOG = logger)
-        s3_handler.connect()
-        s3_handler.put_file(
-            datacenter.deploy['bucket'],
-            package['file_path'],
-            os.path.join(settings.PACKAGE_SAVE_PATH, package['service'], os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version']))
-        )
-        logger.info('xxxxxxxxxxxxxxxxxxxxxxxxx upload s3 finished.')
+        if datacenter_name:
+            datacenters = Datacenter.objects(name = datacenter_name)
+            datacenter = datacenters[0]
+            deploy_single_agent(json.loads(datacenters.to_json()), package)
+            datacenter['agent']['version'] = package['version']
+            datacenter['agent']['file_path'] = package['file_path']
+            datacenter.save()
+            consul_sync_datacenter(datacenter, logger)
+        else:
+            datacenters = Datacenter.objects(env = target_env)
+            for datacenter in datacenters:
+                deploy_single_agent(json.loads(datacenters.to_json()), package) 
+                datacenter['agent']['version'] = package['version']
+                datacenter['agent']['file_path'] = package['file_path']
+                datacenter.save()
+                consul_sync_datacenter(datacenter, logger)
     else:
-        wait_deploy_groups = []
-        groups = DeployGroup.objects(service = package['service'])
-        for datacenter in datacenters:
-            # generate config file
-            file_name = os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version'])
-            local_file_path = os.path.join(settings.PACKAGE_SAVE_PATH, package['service'], file_name)
-            service_package = commFile.ServicePackage(
-                package['service'],
-                package['version'],
-                datacenter.region,
-                package['file_path'],
-                local_file_path,
-                package['md5']['source'],
-                target_env,
-                LOG = logger
-            )
-            service_package.process_config()
-            release_note = service_package.get_release_note()
-            logger.debug('generate config file finish, new md5 is {0}'.format(service_package.new_md5))
+        file_name = os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version'])
+        local_file_path = os.path.join(settings.PACKAGE_SAVE_PATH, package['service'], file_name)
+        if datacenter_name:
+            datacenters = Datacenter.objects(name = datacenter_name)
+            datacenter = datacenters[0]
+            deploy_single_service(json.loads(datacenter.to_json()), package, local_file_path, operator)
 
-            for group in groups:
-                want_healths = service_package.auto_create_health(group.name)
-                if want_healths:
-                    consul_sync_health(datacenter = json.loads(datacenter.to_json()), group_name = group.name, healths = want_healths)
-                logger.debug('datacenter.env is [{0}], target_env is [{1}], datacenter.name is [{2}], group.datacenter is [{3}]'.format(datacenter.env, target_env, datacenter.name, group.datacenter))
-                if datacenter.env == target_env and datacenter.name == group.datacenter:
-                    wait_deploy_groups.append(
-                        {
-                            'service': package['service'],
-                            'version': package['version'],
-                            'file_path': package['file_path'],
-                            'md5': service_package.new_md5,
-                            'operator': operator,
-
-                            'group_name': group.name,
-                            'deploy_policy_type': group.deploy['type'],
-                            'deploy_policy_value': group.deploy['value'],
-
-                            'env': datacenter.env,
-                            'datacenter_name': datacenter.name,
-                            'datacenter_cacert': datacenter.qurom['cacert'],
-                            'datacenter_cakey': datacenter.qurom['cakey'],
-                            'datacenter_domain': datacenter.qurom['domain'],
-                            'datacenter_port': datacenter.qurom['port']
-                        }
-                    )
-            service_package.clear()
-        logger.debug('wait to deploy groups are: [{0}]'.format(','.join([item['group_name'] for item in wait_deploy_groups])))
-        for wait_deploy_group in wait_deploy_groups:
-            deploy_handler = commDeploy.DeployHandler(wait_deploy_group, LOG = logger)
-            result, message = deploy_handler.process()
-            deploy_mail(result = result, message = message, env = target_env, service = package['service'], datacenter_name = datacenter.name, release_note = release_note)
+        else:
+            datacenters = Datacenter.objects(env = target_env)
+            for datacenter in datacenters:
+                deploy_single_service(json.loads(datacenter.to_json()), package, local_file_path, operator)
+            
     logger.info('deploy finish')
     return
 
+def deploy_single_agent(datacenter, package):
+    s3_handler = commAws.S3Handler(
+        datacenter['region'],
+        datacenter['agent']['access_key_id'],
+        datacenter['agent']['secret_access_key'],
+        LOG = logger
+    )
+    s3_handler.connect()
+    s3_handler.put_file(
+        datacenter['deploy']['bucket'],
+        package['file_path'],
+        os.path.join(settings.PACKAGE_SAVE_PATH, package['service'], os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version']))
+    )
+    logger.info('xxxxxxxxxxxxxxxxxxxxxxxxx upload s3 finished.')
+    return
+
+def deploy_single_service(datacenter, package, local_file_path, operator):
+    service_package = commFile.ServicePackage(
+        package,
+        local_file_path,
+        datacenter,
+        LOG = logger
+    )
+    try:
+        uploaded = package['upload'][datacenter['name']]
+    except:
+        uploaded = None
+
+    service_package.uncompress()
+    if not uploaded:
+        logger.info('package not upload, begin upload package.')
+        service_package.process_config()
+        uploaded = service_package.set_upload()
+    else:
+        logger.info('package already upload.')
+ 
+    release_note = service_package.get_release_note()
+    logger.debug('generate config file finish, new md5 is {0}'.format(service_package.new_md5))
+    
+    wait_deploy_groups = []
+    groups = DeployGroup.objects(service = package['service'], datacenter = datacenter['name'])
+    for group in groups:
+        want_healths = service_package.auto_create_health(group.name)
+        if want_healths:
+            consul_sync_health(datacenter = datacenter, group_name = group.name, healths = want_healths)
+        wait_deploy_groups.append(
+            {
+                'service': package['service'],
+                'version': package['version'],
+                'file_path': package['file_path'],
+                'md5': uploaded,
+                'operator': operator,
+
+                'group_name': group.name,
+                'deploy_policy_type': group.deploy['type'],
+                'deploy_policy_value': group.deploy['value'],
+
+                'env': datacenter['env'],
+                'datacenter_name': datacenter['name'],
+                'datacenter_cacert': datacenter['qurom']['cacert'],
+                'datacenter_cakey': datacenter['qurom']['cakey'],
+                'datacenter_domain': datacenter['qurom']['domain'],
+                'datacenter_port': datacenter['qurom']['port']
+            }
+        )
+    service_package.clear()
+    logger.debug('wait to deploy groups are: [{0}]'.format(','.join([item['group_name'] for item in wait_deploy_groups])))
+    
+    for wait_deploy_group in wait_deploy_groups:
+        deploy_handler = commDeploy.DeployHandler(wait_deploy_group, LOG = logger)
+        result, message = deploy_handler.process()
+        deploy_mail(
+            result = result,
+            message = message,
+            env = datacenter['env'],
+            service = package['service'],
+            datacenter_name = datacenter['name'],
+            release_note = release_note
+        )
+    return
+
+@task()
+def package_upload(*args, **kwargs):
+    package = kwargs['package']
+    operator = kwargs['operator']
+    datacenter = kwargs['datacenter']
+
+    file_name = os.path.basename(package['file_path']).replace('tar.gz', '%s.tar.gz' % package['version'])
+    local_file_path = os.path.join(settings.PACKAGE_SAVE_PATH, package['service'], file_name)
+    service_package = commFile.ServicePackage(
+        package,
+        local_file_path,
+        datacenter,
+        LOG = logger
+    )
+    service_package.uncompress()
+    service_package.process_config()
+    service_package.set_upload()
+    service_package.clear()
+    return
 
 def deploy_mail(*args, **kwargs):
     release_note = kwargs['release_note']
@@ -396,22 +454,3 @@ def deploy_mail(*args, **kwargs):
         fail_silently = False
     )
     return
-
-#def consul_sync_agent(*args, **kwargs):
-#    datacenter = kwargs['datacenter']
-#    agent = kwargs['agent']
-#
-#    consul_handler = commConsul.CommConsul(datacenter['qurom']['cacert'], datacenter['qurom']['cakey'])
-#    consul_handler.connect(datacenter['qurom']['domain'], datacenter['qurom']['port'])
-#
-#    consul_key = 'deploy/agent/version'
-#    consul_value = json.dumps(
-#        {
-#            'version': agent['version'],
-#            'file_path': agent['file_path']
-#        }
-#    )
-#    consul_handler.put_values(consul_key, consul_value)
-#
-#    consul_handler.clear_consul_cert()
-#    return

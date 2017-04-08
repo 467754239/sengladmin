@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'^deploy/$', views.deploy_operator, name = 'deploy_operator'),
     url(r'^deploy/record/$', views.deploy_record, name = 'deploy_record'),
     url(r'^deploy/process/$', views.deploy_process, name = 'deploy_process'),
+    url(r'^deploy/upload/$', views.deploy_upload, name = 'deploy_upload'),
     url(r'^agent/event/$', views.agent_event, name = 'agent_event'),
 
     url(r'^consignee/$', views.consignee, name = 'consignee'),

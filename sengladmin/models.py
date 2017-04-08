@@ -95,9 +95,10 @@ class Package(Document):
     region = StringField(required = True)
     bucket = StringField(required = True)
     time = StringField(required = True)
-    testing = StringField(required = False)
-    status = DictField(required = False)
-    audit = DictField(required = False)
+    testing = StringField(required = False) # testing status: pass, waiting
+    status = DictField(required = False) # audit status: { "md5" : "pass", "config" : "pass", "sql" : "pass", "port" : "pass" } status is pass, waiting or refuse
+    audit = DictField(required = False) # audit result: { "port" : [ "private:8080" ], "config": [ "DPCENTER_ADDR", "DPCENTER_PORT" ] } 
+    upload = DictField(required = False)
     
 class Health(Document):
     name = StringField(required = True)

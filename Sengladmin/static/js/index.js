@@ -2172,6 +2172,32 @@ $(function(){
         }
     );
 
+    $('#button_upload').on(
+        'click', function(){
+            var datacenter_name = $('#datacenter').val();
+            var service_name = $('#service').val();
+            var version = $('#version').val();
+            $.ajax(
+                {
+                    url: '/sengladmin/deploy/upload/',
+                    type: 'post',
+                    data: {'datacenter_name': datacenter_name, 'service_name': service_name, 'version': version},
+                    success: function(resp){
+                        alert(resp.rsp_head.rsp_info)
+                        window.location.href = '/sengladmin/deploy/upload/'
+                    },
+                    error: function(){
+                        $('.removeDatacenter').on(
+                            'hide.bs.modal', function(){
+                                $(this).removeData()
+                            }
+                        )
+                    }
+                }
+            )
+        }
+    );
+
     $(".btnPassService").on(
         'click',function(){
             $(this).attr('data-value',1).parents('tr').siblings().find("[data-toggle='modal']").attr('data-value',2);

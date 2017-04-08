@@ -847,6 +847,31 @@ def deploy_operator(request):
 @commDecorator.login_required
 @commDecorator.logging_system
 @commDecorator.print_log(LOG = logger)
+def deploy_upload(request):
+    context = {}
+    if request.method == 'GET':
+        ops_handler = opsHandler.OpsHandler(request, logger)
+        context = ops_handler.all_resources()
+        resp_json = {
+            'context': json.dumps(context),
+            'current_permission': json.dumps(request.session.get('current_permissions', {})),
+            'user_name': request.session.get('user_name', None),
+            'account': request.session.get('user_account', None)
+        }
+        return render_to_response('sengladmin/deploy_upload.html', resp_json)
+    elif request.method == 'POST':
+        ops_handler = opsHandler.OpsHandler(request, logger)
+        context = ops_handler.deploy_upload(
+            request.POST.get('datacenter_name', None),
+            request.POST.get('service_name', None),
+            request.POST.get('version', None),
+            request.session.get('user_name', None),
+        )
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+@commDecorator.login_required
+@commDecorator.logging_system
+@commDecorator.print_log(LOG = logger)
 def deploy_record(request):
     context = {}
     if request.method == 'GET':
