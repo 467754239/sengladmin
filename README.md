@@ -115,6 +115,8 @@ cp $workspace/$project-name/prepares/python_module_code/session.py $venv-path-na
 cp $workspace/$project-name/prepares/python_module_code/base.py $venv-path-name/lib/python2.7/site-packages/consul/base.py
 
 cp $workspace/$project-name/prepares/python_module_code/std.py $venv-path-name/lib/python2.7/site-packages/consul/std.py
+
+cp $workspace/$project-name/prepares/python_module_code/mongodb.py $venv-path-name/lib/python2.7/site-packages/celery/backends/mongodb.py
 ```
 
 ## 2.3 修改配置文件
