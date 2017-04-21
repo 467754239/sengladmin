@@ -35,7 +35,7 @@
 		"部署版本"
 	],
 	"users": [
-		"wangshuai@sengled.com"
+		"110@xx.com"
 	]
 },
 {
@@ -66,15 +66,6 @@
 		"服务管理",
 		"配置检索",
 		"部署版本"
-	],
-	"users": [
-		"82806791@qq.com",
-		"liangzl@sengled.com",
-		"chenlei@sengled.com",
-		"ljx@sengled.com",
-		"zsq@sengled.com",
-		"zyh@sengled.com",
-		"yuze@sengled.com"
 	]
 },
 {
@@ -83,10 +74,7 @@
 	},
 	"name": "DBA",
 	"description": "DBA",
-	"level": 2.0,
-	"users": [
-		"zgl@sengled.com"
-	]
+	"level": 2.0
 },
 {
 	"_id": {
@@ -111,15 +99,6 @@
 	"name": "开发",
 	"description": "开发",
 	"level": 4.0,
-	"users": [
-		"liubin@sengled.com",
-		"cxh@sengled.com",
-		"hxh@sengled.com",
-		"liqiang@sengled.com",
-		"qhm@sengled.com",
-		"ligen@sengled.com",
-		"1274903060@qq.com"
-	],
 	"permissions": [
 		"开发管理",
 		"服务管理",
